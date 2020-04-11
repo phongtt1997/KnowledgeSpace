@@ -4,11 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using BackendServer.Data;
 using BackendServer.Data.Entities;
+using BackendServer.IdentityServer;
+using BackendServer.Services;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -39,6 +42,17 @@ namespace BackendServer
             //2. Setup idetntity
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            var builder = services.AddIdentityServer(options =>
+            {
+                options.Events.RaiseErrorEvents = true;
+                options.Events.RaiseInformationEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseSuccessEvents = true;
+            })
+            .AddInMemoryApiResources(Config.Apis)
+            .AddInMemoryClients(Config.Clients)
+            .AddInMemoryIdentityResources(Config.Ids)
+            .AddAspNetIdentity<User>();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -54,10 +68,12 @@ namespace BackendServer
                 options.Password.RequireUppercase = true;
                 options.User.RequireUniqueEmail = true;
             });
-            services.AddControllers()
+            services.AddControllersWithViews()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RoleVmValidator>());
 
+            services.AddRazorPages();
             services.AddTransient<DbInitializer>();
+            services.AddTransient<IEmailSender, EmailSenderService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Knowledge Space API", Version = "v1" });
@@ -72,6 +88,12 @@ namespace BackendServer
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+
+            app.UseIdentityServer();
+
+            app.UseAuthentication();
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -80,7 +102,8 @@ namespace BackendServer
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                endpoints.MapDefaultControllerRoute();
+                endpoints.MapRazorPages();
             });
             app.UseSwagger();
 
