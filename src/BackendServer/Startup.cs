@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BackendServer.Data;
 using BackendServer.Data.Entities;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using ViewModels.Systems;
 
 namespace BackendServer
 {
@@ -52,8 +54,9 @@ namespace BackendServer
                 options.Password.RequireUppercase = true;
                 options.User.RequireUniqueEmail = true;
             });
-            services.AddControllers();
-            
+            services.AddControllers()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RoleVmValidator>());
+
             services.AddTransient<DbInitializer>();
             services.AddSwaggerGen(c =>
             {
