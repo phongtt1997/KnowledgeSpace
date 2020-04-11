@@ -47,8 +47,7 @@ namespace BackendServer.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            [EmailAddress]
-            public string Email { get; set; }
+            public string UserName { get; set; }
 
             [Required]
             [DataType(DataType.Password)]
@@ -83,7 +82,7 @@ namespace BackendServer.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
+                var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -109,33 +108,33 @@ namespace BackendServer.Areas.Identity.Pages.Account
             return Page();
         }
 
-        public async Task<IActionResult> OnPostSendVerificationEmailAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+        //public async Task<IActionResult> OnPostSendVerificationEmailAsync()
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return Page();
+        //    }
 
-            var user = await _userManager.FindByEmailAsync(Input.Email);
-            if (user == null)
-            {
-                ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
-            }
+        //    var user = await _userManager.FindByEmailAsync(Input.UserName);
+        //    if (user == null)
+        //    {
+        //        ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
+        //    }
 
-            var userId = await _userManager.GetUserIdAsync(user);
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var callbackUrl = Url.Page(
-                "/Account/ConfirmEmail",
-                pageHandler: null,
-                values: new { userId = userId, code = code },
-                protocol: Request.Scheme);
-            await _emailSender.SendEmailAsync(
-                Input.Email,
-                "Confirm your email",
-                $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+        //    var userId = await _userManager.GetUserIdAsync(user);
+        //    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        //    var callbackUrl = Url.Page(
+        //        "/Account/ConfirmEmail",
+        //        pageHandler: null,
+        //        values: new { userId = userId, code = code },
+        //        protocol: Request.Scheme);
+        //    await _emailSender.SendEmailAsync(
+        //        Input.Email,
+        //        "Confirm your email",
+        //        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-            ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
-            return Page();
-        }
+        //    ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
+        //    return Page();
+        //}
     }
 }

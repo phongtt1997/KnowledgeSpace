@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BackendServer.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ using ViewModels.Systems;
 
 namespace BackendServer.Controllers
 {
+    [Authorize("Bearer")]
     public class RolesController : BaseController
     {
         private readonly RoleManager<IdentityRole> _roleManager;
