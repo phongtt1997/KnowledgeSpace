@@ -13,7 +13,6 @@ using ViewModels.Systems;
 
 namespace BackendServer.Controllers
 {
-    [Authorize("Bearer")]
     public class RolesController : BaseController
     {
         private readonly RoleManager<IdentityRole> _roleManager;
